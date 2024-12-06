@@ -2,31 +2,43 @@ import java.util.Scanner;
 
 public class Main {
 
+    public static void main(String[] args) {
+        Game game = new Game();
+        game.start();
+    }
+}
+
+class Game {
     private static final int BOARD_SIZE = 9;
     private static final char PLAYER_SYMBOL = 'X';
     private static final char AI_SYMBOL = 'O';
     private static final char EMPTY_BOX = ' ';
+    private final Scanner scan;
+    private final char[] board;
 
-    public static void main(String[] args) {
-        Scanner scan = new Scanner(System.in);
-        char[] board = initializeBoard();
+    public Game() {
+        this.scan = new Scanner(System.in);
+        this.board = initializeBoard();
+    }
+
+    public void start() {
         GameStatus status = GameStatus.ONGOING;
 
         while (status == GameStatus.ONGOING) {
-            displayBoard(board);
-            playerMove(scan, board);
-            status = checkGameStatus(board, PLAYER_SYMBOL);
+            displayBoard();
+            playerMove();
+            status = checkGameStatus(PLAYER_SYMBOL);
             if (status != GameStatus.ONGOING) break;
 
-            aiMove(board);
-            status = checkGameStatus(board, AI_SYMBOL);
+            aiMove();
+            status = checkGameStatus(AI_SYMBOL);
         }
 
-        displayBoard(board);
+        displayBoard();
         displayResult(status);
     }
 
-    private static char[] initializeBoard() {
+    private char[] initializeBoard() {
         char[] board = new char[BOARD_SIZE];
         for (int i = 0; i < BOARD_SIZE; i++) {
             board[i] = EMPTY_BOX;
@@ -34,7 +46,7 @@ public class Main {
         return board;
     }
 
-    private static void displayBoard(char[] board) {
+    private void displayBoard() {
         System.out.println("\n " + board[0] + " | " + board[1] + " | " + board[2]);
         System.out.println("---+---+---");
         System.out.println(" " + board[3] + " | " + board[4] + " | " + board[5]);
@@ -42,7 +54,7 @@ public class Main {
         System.out.println(" " + board[6] + " | " + board[7] + " | " + board[8]);
     }
 
-    private static void playerMove(Scanner scan, char[] board) {
+    private void playerMove() {
         int move;
         while (true) {
             System.out.print("Enter your move (1-9): ");
@@ -56,7 +68,7 @@ public class Main {
         }
     }
 
-    private static void aiMove(char[] board) {
+    private void aiMove() {
         int move;
         while (true) {
             move = (int) (Math.random() * BOARD_SIZE);
@@ -68,17 +80,17 @@ public class Main {
         System.out.println("AI chose position: " + (move + 1));
     }
 
-    private static GameStatus checkGameStatus(char[] board, char symbol) {
-        if (isWinner(board, symbol)) {
+    private GameStatus checkGameStatus(char symbol) {
+        if (isWinner(symbol)) {
             return symbol == PLAYER_SYMBOL ? GameStatus.PLAYER_WON : GameStatus.AI_WON;
         }
-        if (isDraw(board)) {
+        if (isDraw()) {
             return GameStatus.DRAW;
         }
         return GameStatus.ONGOING;
     }
 
-    private static boolean isWinner(char[] board, char symbol) {
+    private boolean isWinner(char symbol) {
         int[][] winningCombinations = {
                 {0, 1, 2}, {3, 4, 5}, {6, 7, 8},
                 {0, 3, 6}, {1, 4, 7}, {2, 5, 8},
@@ -94,14 +106,14 @@ public class Main {
         return false;
     }
 
-    private static boolean isDraw(char[] board) {
+    private boolean isDraw() {
         for (char cell : board) {
             if (cell == EMPTY_BOX) return false;
         }
         return true;
     }
 
-    private static void displayResult(GameStatus status) {
+    private void displayResult(GameStatus status) {
         switch (status) {
             case PLAYER_WON -> System.out.println("Congratulations, you won!");
             case AI_WON -> System.out.println("AI won. Better luck next time!");
